@@ -1,5 +1,6 @@
 import { map } from 'rxjs/operators';
 import { fromEvent, merge, Observable } from 'rxjs';
+import { createStore } from 'redux';
 
 window.onload = () => {
   const widget = document.getElementsByClassName('widget__main-user');
@@ -8,7 +9,7 @@ window.onload = () => {
 
   function zapros(userInfo, numberOfUser) {
     const request = new XMLHttpRequest();
-    let check = [];
+    const check = [];
     request.open('GET', `${userInfo}`);
     request.send();
     request.onreadystatechange = () => {
@@ -95,7 +96,7 @@ window.onload = () => {
   });
   const refresh1 = document.getElementsByClassName('refresh');
   const refresh = refresh1[0];
-  const githubUsers = Observable.create((observer) => {
+  /* const githubUsers = Observable.create((observer) => {
     observer.next('https://api.github.com/users');
   });
   const btn = fromEvent(refresh, 'click');
@@ -106,5 +107,23 @@ window.onload = () => {
     }),
   );
   const work = merge(githubUsers, updateList);
-  work.subscribe(res => zapros(res, 3));
+  work.subscribe(res => zapros(res, 3)); */
+  function gitRequest(state = 0, action) {
+    switch (action.type) {
+      case 'live':
+        return state = action.api;
+      case 'button':
+        return state = action.api;
+      default:
+        return state;
+    }
+  }
+
+  const store = createStore(gitRequest);
+  store.subscribe(() => zapros(store.getState(), 3));
+  store.dispatch({ type: 'live', api: 'https://api.github.com/users' });
+  $('.refresh').on('click', () => {
+    $('.widget__main-user').html(null);
+    store.dispatch({ type: 'button', api: 'https://api.github.com/users' });
+  });
 };
